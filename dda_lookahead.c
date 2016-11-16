@@ -190,21 +190,22 @@ void dda_join_moves(DDA *prev, DDA *current) {
 
   // Make sure we have 2 moves and the previous move is not already active
   if (prev->live == 0) {
-    // Perform an atomic copy to preserve volatile parameters during the calculations
+    // Copy DDA ids to verify later that nothing changed during calculations
     ATOMIC_START
       prev_id = prev->id;
-      prev_F = prev->endpoint.F;
-      prev_F_start_in_steps = prev->start_steps;
-      prev_F_end_in_steps = prev->end_steps;
-      prev_rampup = prev->rampup_steps;
-      prev_rampdown = prev->rampdown_steps;
-      prev_total_steps = prev->total_steps;
-      crossF = current->crossF;
       this_id = current->id;
-      this_F = current->endpoint.F;
-      this_total_steps = current->total_steps;
-      this_fast_axis = current->fast_axis;
     ATOMIC_END
+
+    prev_F = prev->endpoint.F;
+    prev_F_start_in_steps = prev->start_steps;
+    prev_F_end_in_steps = prev->end_steps;
+    prev_rampup = prev->rampup_steps;
+    prev_rampdown = prev->rampdown_steps;
+    prev_total_steps = prev->total_steps;
+    crossF = current->crossF;
+    this_F = current->endpoint.F;
+    this_total_steps = current->total_steps;
+    this_fast_axis = current->fast_axis;
 
     // Here we have to distinguish between feedrate along the movement
     // direction and feedrate of the fast axis. They can differ by a factor
