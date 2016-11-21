@@ -467,6 +467,15 @@ void dda_create(DDA *dda, const TARGET *target) {
       if (dda->c < c_limit)
         dda->c = c_limit;
 		#endif
+
+    /**
+      To make switching from one movement to the next computationally more
+      efficient, we figure right here which axes to step first. This allows
+      to simplify the movement end test done at every dda_step() invocation.
+    */
+    for (i = X; i < AXIS_COUNT; i++) {
+      dda->first_step[i] = (dda->delta[i] == dda->total_steps);
+    }
 	} /* ! dda->total_steps == 0 */
 
 	if (DEBUG_DDA && (debug_flags & DEBUG_DDA))
@@ -535,8 +544,27 @@ void dda_start(DDA *dda) {
 		// ensure this dda starts
 		dda->live = 1;
 
-		// set timeout for first step
-    dda_step(dda);
+    /**
+      Do the first step right here. If it's the first step after a pause,
+      timing doesn't matter. If it's a step following a movement just completed,
+      timing was already done by the dda_step() invocation which happened to
+      find that no step to be done was left.
+    */
+    if (dda->first_step[X]) {
+      x_step();
+    }
+    if (dda->first_step[Y]) {
+      y_step();
+    }
+    if (dda->first_step[Z]) {
+      z_step();
+    }
+    if (dda->first_step[E]) {
+      e_step();
+    }
+
+    // Set timeout for next step.
+    timer_set(dda->c, 0);
 	}
 	// else just a speed change, keep dda->live = 0
 

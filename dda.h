@@ -131,6 +131,8 @@ typedef struct {
 	uint32_t					rampdown_steps;
 	/// 24.8 fixed point timer value, maximum speed
 	uint32_t					c_min;
+  /// Flags for the axes to step first.
+  uint8_t           first_step[AXIS_COUNT];
   #ifdef LOOKAHEAD
   // With the look-ahead functionality, it is possible to retain physical
   // movement between G1 moves. These variables keep track of the entry and
