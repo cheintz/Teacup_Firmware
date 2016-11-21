@@ -536,7 +536,7 @@ void dda_start(DDA *dda) {
 		dda->live = 1;
 
 		// set timeout for first step
-    timer_set(dda->c, 0);
+    dda_step(dda);
 	}
 	// else just a speed change, keep dda->live = 0
 
