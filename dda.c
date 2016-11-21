@@ -565,6 +565,9 @@ void dda_start(DDA *dda) {
 */
 void dda_step(DDA *dda) {
 
+  // Assume we're done.
+  dda->live = 0;
+
 #if ! defined ACCELERATION_TEMPORAL
   if (move_state.steps[X]) {
     move_state.counter[X] -= dda->delta[X];
@@ -572,6 +575,7 @@ void dda_step(DDA *dda) {
 			x_step();
       move_state.steps[X]--;
       move_state.counter[X] += dda->total_steps;
+      dda->live = 1;
 		}
 	}
   if (move_state.steps[Y]) {
@@ -580,6 +584,7 @@ void dda_step(DDA *dda) {
 			y_step();
       move_state.steps[Y]--;
       move_state.counter[Y] += dda->total_steps;
+      dda->live = 1;
 		}
 	}
   if (move_state.steps[Z]) {
@@ -588,6 +593,7 @@ void dda_step(DDA *dda) {
 			z_step();
       move_state.steps[Z]--;
       move_state.counter[Z] += dda->total_steps;
+      dda->live = 1;
 		}
 	}
   if (move_state.steps[E]) {
@@ -596,6 +602,7 @@ void dda_step(DDA *dda) {
 			e_step();
       move_state.steps[E]--;
       move_state.counter[E] += dda->total_steps;
+      dda->live = 1;
 		}
 	}
 #endif
@@ -710,13 +717,11 @@ void dda_step(DDA *dda) {
   //
   // TODO: with ACCELERATION_TEMPORAL this duplicates some code. See where
   //       dda->live is zero'd, about 10 lines above.
-  if ((move_state.steps[X] == 0 && move_state.steps[Y] == 0 &&
-       move_state.steps[Z] == 0 && move_state.steps[E] == 0)
+  if ( ! dda->live
     #ifdef ACCELERATION_RAMPING
       || (move_state.endstop_stop && dda->n <= 0)
     #endif
       ) {
-		dda->live = 0;
     dda->done = 1;
     #ifdef LOOKAHEAD
     // If look-ahead was using this move, it could have missed our activation:
